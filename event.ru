@@ -1,9 +1,10 @@
 require 'sinatra'
 require 'faraday'
-require 'figaro/sinatra'
+require 'dotenv/load'
 require 'pry'
 require 'fast_jsonapi'
 require_relative 'event_serializer'
+require_relative 'event'
 
 get "/all_us_events" do
 	conn = Faraday.new(url: "https://app.ticketmaster.com/discovery/v2/") do |f|
@@ -15,8 +16,13 @@ get "/all_us_events" do
 	response = conn.get("events.json")
 	data = JSON.parse(response.body, symbolize_names: true)
 
-	events = EventSerializer.new(data[:_embedded][:events])
-	binding.pry
+	event_data = data[:_embedded][:events]
+
+	events = event_data.map do |event|
+		Event.new(event)
+	end
+
+	EventSerializer.new(events).to_json
 end
 
 get "/search" do
