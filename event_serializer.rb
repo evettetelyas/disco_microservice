@@ -1,5 +1,5 @@
 class EventSerializer
-    include FastJsonapi::ObjectSerializer
-
-    attributes :name, :id
+  def initialize(events)
+    @events = events
   end
+end
